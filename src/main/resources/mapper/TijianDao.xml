@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.TijianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.tijian_name as tijianName
+        ,a.tijian_types as tijianTypes
+        ,a.tijian_file as tijianFile
+        ,a.tijian_new_money as tijianNewMoney
+        ,a.tijian_content as tijianContent
+        ,a.tijian_delete as tijianDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.TijianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM tijian  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.tijianName != '' and params.tijianName != null and params.tijianName != 'null' ">
+                and a.tijian_name like CONCAT('%',#{params.tijianName},'%')
+            </if>
+            <if test="params.tijianTypes != null and params.tijianTypes != ''">
+                and a.tijian_types = #{params.tijianTypes}
+            </if>
+            <if test="params.tijianNewMoneyStart != null ">
+                <![CDATA[  and a.tijian_new_money >= #{params.tijianNewMoneyStart}   ]]>
+            </if>
+            <if test="params.tijianNewMoneyEnd != null ">
+                <![CDATA[  and a.tijian_new_money <= #{params.tijianNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.tijianContent != '' and params.tijianContent != null and params.tijianContent != 'null' ">
+                and a.tijian_content like CONCAT('%',#{params.tijianContent},'%')
+            </if>
+            <if test="params.tijianDeleteStart != null and params.tijianDeleteStart != ''">
+                <![CDATA[  and a.tijian_delete >= #{params.tijianDeleteStart}   ]]>
+            </if>
+            <if test="params.tijianDeleteEnd != null and params.tijianDeleteEnd != ''">
+                <![CDATA[  and a.tijian_delete <= #{params.tijianDeleteEnd}   ]]>
+            </if>
+             <if test="params.tijianDelete != null and params.tijianDelete != ''">
+                and a.tijian_delete = #{params.tijianDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

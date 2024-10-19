@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiashuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.jiashu_name as jiashuName
+        ,a.jiashu_photo as jiashuPhoto
+        ,a.sex_types as sexTypes
+        ,a.jiashu_phone as jiashuPhone
+        ,a.jiashu_email as jiashuEmail
+        ,a.jiashu_types as jiashuTypes
+        ,a.jiashu_delete as jiashuDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiashuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM jiashu  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.jiashuName != '' and params.jiashuName != null and params.jiashuName != 'null' ">
+                and a.jiashu_name like CONCAT('%',#{params.jiashuName},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.jiashuPhone != '' and params.jiashuPhone != null and params.jiashuPhone != 'null' ">
+                and a.jiashu_phone like CONCAT('%',#{params.jiashuPhone},'%')
+            </if>
+            <if test=" params.jiashuEmail != '' and params.jiashuEmail != null and params.jiashuEmail != 'null' ">
+                and a.jiashu_email like CONCAT('%',#{params.jiashuEmail},'%')
+            </if>
+            <if test="params.jiashuTypes != null and params.jiashuTypes != ''">
+                and a.jiashu_types = #{params.jiashuTypes}
+            </if>
+            <if test="params.jiashuDeleteStart != null and params.jiashuDeleteStart != ''">
+                <![CDATA[  and a.jiashu_delete >= #{params.jiashuDeleteStart}   ]]>
+            </if>
+            <if test="params.jiashuDeleteEnd != null and params.jiashuDeleteEnd != ''">
+                <![CDATA[  and a.jiashu_delete <= #{params.jiashuDeleteEnd}   ]]>
+            </if>
+             <if test="params.jiashuDelete != null and params.jiashuDelete != ''">
+                and a.jiashu_delete = #{params.jiashuDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.QinshiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.qinshi_name as qinshiName
+        ,a.qinshi_types as qinshiTypes
+        ,a.status_types as statusTypes
+        ,a.qinshi_content as qinshiContent
+        ,a.qinshi_delete as qinshiDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.QinshiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM qinshi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.qinshiName != '' and params.qinshiName != null and params.qinshiName != 'null' ">
+                and a.qinshi_name like CONCAT('%',#{params.qinshiName},'%')
+            </if>
+            <if test="params.qinshiTypes != null and params.qinshiTypes != ''">
+                and a.qinshi_types = #{params.qinshiTypes}
+            </if>
+            <if test="params.statusTypes != null and params.statusTypes != ''">
+                and a.status_types = #{params.statusTypes}
+            </if>
+            <if test=" params.qinshiContent != '' and params.qinshiContent != null and params.qinshiContent != 'null' ">
+                and a.qinshi_content like CONCAT('%',#{params.qinshiContent},'%')
+            </if>
+            <if test="params.qinshiDeleteStart != null and params.qinshiDeleteStart != ''">
+                <![CDATA[  and a.qinshi_delete >= #{params.qinshiDeleteStart}   ]]>
+            </if>
+            <if test="params.qinshiDeleteEnd != null and params.qinshiDeleteEnd != ''">
+                <![CDATA[  and a.qinshi_delete <= #{params.qinshiDeleteEnd}   ]]>
+            </if>
+             <if test="params.qinshiDelete != null and params.qinshiDelete != ''">
+                and a.qinshi_delete = #{params.qinshiDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

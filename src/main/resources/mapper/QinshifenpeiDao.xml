@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.QinshifenpeiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.qinshi_id as qinshiId
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.QinshifenpeiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,qinshi.qinshi_name as qinshiName
+        ,qinshi.qinshi_types as qinshiTypes
+        ,qinshi.status_types as statusTypes
+        ,qinshi.qinshi_content as qinshiContent
+        ,qinshi.qinshi_delete as qinshiDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.jiankang_types as jiankangTypes
+        ,yonghu.yonghu_age as yonghuAge
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_address as yonghuAddress
+        ,yonghu.baojing_types as baojingTypes
+        ,yonghu.jiashu_id as yonghuJiashuId
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM qinshifenpei  a
+        left JOIN qinshi qinshi ON a.qinshi_id = qinshi.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.qinshiId != null and params.qinshiId != ''">
+                and (
+                    a.qinshi_id = #{params.qinshiId}
+                )
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断寝室信息的id不为空 -->
+            <if test=" params.qinshiIdNotNull != '' and params.qinshiIdNotNull != null and params.qinshiIdNotNull != 'null' ">
+                and a.qinshi_id IS NOT NULL
+            </if>
+            <if test=" params.qinshiName != '' and params.qinshiName != null and params.qinshiName != 'null' ">
+                and qinshi.qinshi_name like CONCAT('%',#{params.qinshiName},'%')
+            </if>
+            <if test="params.qinshiTypes != null  and params.qinshiTypes != ''">
+                and qinshi.qinshi_types = #{params.qinshiTypes}
+            </if>
+
+            <if test="params.statusTypes != null  and params.statusTypes != ''">
+                and qinshi.status_types = #{params.statusTypes}
+            </if>
+
+            <if test=" params.qinshiContent != '' and params.qinshiContent != null and params.qinshiContent != 'null' ">
+                and qinshi.qinshi_content like CONCAT('%',#{params.qinshiContent},'%')
+            </if>
+            <if test="params.qinshiDeleteStart != null  and params.qinshiDeleteStart != '' ">
+                <![CDATA[  and qinshi.qinshi_delete >= #{params.qinshiDeleteStart}   ]]>
+            </if>
+            <if test="params.qinshiDeleteEnd != null  and params.qinshiDeleteEnd != '' ">
+                <![CDATA[  and qinshi.qinshi_delete <= #{params.qinshiDeleteEnd}   ]]>
+            </if>
+            <if test="params.qinshiDelete != null  and params.qinshiDelete != '' ">
+                and qinshi.qinshi_delete = #{params.qinshiDelete}
+            </if>
+                <!-- 判断老人的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.jiankangTypes != null  and params.jiankangTypes != ''">
+                and yonghu.jiankang_types = #{params.jiankangTypes}
+            </if>
+
+            <if test="params.yonghuAgeStart != null  and params.yonghuAgeStart != '' ">
+                <![CDATA[  and yonghu.yonghu_age >= #{params.yonghuAgeStart}   ]]>
+            </if>
+            <if test="params.yonghuAgeEnd != null  and params.yonghuAgeEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_age <= #{params.yonghuAgeEnd}   ]]>
+            </if>
+            <if test="params.yonghuAge != null  and params.yonghuAge != '' ">
+                and yonghu.yonghu_age = #{params.yonghuAge}
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuAddress != '' and params.yonghuAddress != null and params.yonghuAddress != 'null' ">
+                and yonghu.yonghu_address like CONCAT('%',#{params.yonghuAddress},'%')
+            </if>
+            <if test="params.baojingTypes != null  and params.baojingTypes != ''">
+                and yonghu.baojing_types = #{params.baojingTypes}
+            </if>
+
+            <if test="params.jiashuId != null  and params.jiashuId != ''">
+                and yonghu.jiashu_id = #{params.jiashuId}
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

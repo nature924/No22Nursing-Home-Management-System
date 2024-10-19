@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiashuyijianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiashuyijian_name as jiashuyijianName
+        ,a.jiashuyijian_types as jiashuyijianTypes
+        ,a.jiashu_id as jiashuId
+        ,a.jiashuyijian_content as jiashuyijianContent
+        ,a.jiashuyijian_delete as jiashuyijianDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiashuyijianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,jiashu.jiashu_name as jiashuName
+        ,jiashu.jiashu_photo as jiashuPhoto
+        ,jiashu.jiashu_phone as jiashuPhone
+        ,jiashu.jiashu_email as jiashuEmail
+        ,jiashu.jiashu_types as jiashuTypes
+        ,jiashu.jiashu_delete as jiashuDelete
+
+        FROM jiashuyijian  a
+        left JOIN jiashu jiashu ON a.jiashu_id = jiashu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.jiashuyijianName != '' and params.jiashuyijianName != null and params.jiashuyijianName != 'null' ">
+                and a.jiashuyijian_name like CONCAT('%',#{params.jiashuyijianName},'%')
+            </if>
+            <if test="params.jiashuyijianTypes != null and params.jiashuyijianTypes != ''">
+                and a.jiashuyijian_types = #{params.jiashuyijianTypes}
+            </if>
+            <if test="params.jiashuId != null and params.jiashuId != ''">
+                and (
+                    a.jiashu_id = #{params.jiashuId}
+                )
+            </if>
+            <if test=" params.jiashuyijianContent != '' and params.jiashuyijianContent != null and params.jiashuyijianContent != 'null' ">
+                and a.jiashuyijian_content like CONCAT('%',#{params.jiashuyijianContent},'%')
+            </if>
+            <if test="params.jiashuyijianDeleteStart != null and params.jiashuyijianDeleteStart != ''">
+                <![CDATA[  and a.jiashuyijian_delete >= #{params.jiashuyijianDeleteStart}   ]]>
+            </if>
+            <if test="params.jiashuyijianDeleteEnd != null and params.jiashuyijianDeleteEnd != ''">
+                <![CDATA[  and a.jiashuyijian_delete <= #{params.jiashuyijianDeleteEnd}   ]]>
+            </if>
+             <if test="params.jiashuyijianDelete != null and params.jiashuyijianDelete != ''">
+                and a.jiashuyijian_delete = #{params.jiashuyijianDelete}
+             </if>
+
+                <!-- 判断家属的id不为空 -->
+            <if test=" params.jiashuIdNotNull != '' and params.jiashuIdNotNull != null and params.jiashuIdNotNull != 'null' ">
+                and a.jiashu_id IS NOT NULL
+            </if>
+            <if test=" params.jiashuName != '' and params.jiashuName != null and params.jiashuName != 'null' ">
+                and jiashu.jiashu_name like CONCAT('%',#{params.jiashuName},'%')
+            </if>
+            <if test=" params.jiashuPhone != '' and params.jiashuPhone != null and params.jiashuPhone != 'null' ">
+                and jiashu.jiashu_phone like CONCAT('%',#{params.jiashuPhone},'%')
+            </if>
+            <if test=" params.jiashuEmail != '' and params.jiashuEmail != null and params.jiashuEmail != 'null' ">
+                and jiashu.jiashu_email like CONCAT('%',#{params.jiashuEmail},'%')
+            </if>
+            <if test="params.jiashuTypes != null  and params.jiashuTypes != ''">
+                and jiashu.jiashu_types = #{params.jiashuTypes}
+            </if>
+
+            <if test="params.jiashuDeleteStart != null  and params.jiashuDeleteStart != '' ">
+                <![CDATA[  and jiashu.jiashu_delete >= #{params.jiashuDeleteStart}   ]]>
+            </if>
+            <if test="params.jiashuDeleteEnd != null  and params.jiashuDeleteEnd != '' ">
+                <![CDATA[  and jiashu.jiashu_delete <= #{params.jiashuDeleteEnd}   ]]>
+            </if>
+            <if test="params.jiashuDelete != null  and params.jiashuDelete != '' ">
+                and jiashu.jiashu_delete = #{params.jiashuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

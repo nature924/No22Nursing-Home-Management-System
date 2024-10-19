@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XuqiudaiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yaowu_id as yaowuId
+        ,a.yonghu_id as yonghuId
+        ,a.xuqiudai_kucun_number as xuqiudaiKucunNumber
+        ,a.xuqiudai_types as xuqiudaiTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XuqiudaiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yaowu.yaowu_name as yaowuName
+        ,yaowu.yaowu_types as yaowuTypes
+        ,yaowu.yaowu_kucun_number as yaowuKucunNumber
+        ,yaowu.yaowu_content as yaowuContent
+        ,yaowu.yaowu_delete as yaowuDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.jiankang_types as jiankangTypes
+        ,yonghu.yonghu_age as yonghuAge
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_address as yonghuAddress
+        ,yonghu.baojing_types as baojingTypes
+        ,yonghu.jiashu_id as yonghuJiashuId
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM xuqiudai  a
+        left JOIN yaowu yaowu ON a.yaowu_id = yaowu.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yaowuId != null and params.yaowuId != ''">
+                and (
+                    a.yaowu_id = #{params.yaowuId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.xuqiudaiKucunNumberStart != null and params.xuqiudaiKucunNumberStart != ''">
+                <![CDATA[  and a.xuqiudai_kucun_number >= #{params.xuqiudaiKucunNumberStart}   ]]>
+            </if>
+            <if test="params.xuqiudaiKucunNumberEnd != null and params.xuqiudaiKucunNumberEnd != ''">
+                <![CDATA[  and a.xuqiudai_kucun_number <= #{params.xuqiudaiKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.xuqiudaiKucunNumber != null and params.xuqiudaiKucunNumber != ''">
+                and a.xuqiudai_kucun_number = #{params.xuqiudaiKucunNumber}
+             </if>
+            <if test="params.xuqiudaiTypes != null and params.xuqiudaiTypes != ''">
+                and a.xuqiudai_types = #{params.xuqiudaiTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断药物的id不为空 -->
+            <if test=" params.yaowuIdNotNull != '' and params.yaowuIdNotNull != null and params.yaowuIdNotNull != 'null' ">
+                and a.yaowu_id IS NOT NULL
+            </if>
+            <if test=" params.yaowuName != '' and params.yaowuName != null and params.yaowuName != 'null' ">
+                and yaowu.yaowu_name like CONCAT('%',#{params.yaowuName},'%')
+            </if>
+            <if test="params.yaowuTypes != null  and params.yaowuTypes != ''">
+                and yaowu.yaowu_types = #{params.yaowuTypes}
+            </if>
+
+            <if test="params.yaowuKucunNumberStart != null  and params.yaowuKucunNumberStart != '' ">
+                <![CDATA[  and yaowu.yaowu_kucun_number >= #{params.yaowuKucunNumberStart}   ]]>
+            </if>
+            <if test="params.yaowuKucunNumberEnd != null  and params.yaowuKucunNumberEnd != '' ">
+                <![CDATA[  and yaowu.yaowu_kucun_number <= #{params.yaowuKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.yaowuKucunNumber != null  and params.yaowuKucunNumber != '' ">
+                and yaowu.yaowu_kucun_number = #{params.yaowuKucunNumber}
+            </if>
+            <if test=" params.yaowuContent != '' and params.yaowuContent != null and params.yaowuContent != 'null' ">
+                and yaowu.yaowu_content like CONCAT('%',#{params.yaowuContent},'%')
+            </if>
+            <if test="params.yaowuDeleteStart != null  and params.yaowuDeleteStart != '' ">
+                <![CDATA[  and yaowu.yaowu_delete >= #{params.yaowuDeleteStart}   ]]>
+            </if>
+            <if test="params.yaowuDeleteEnd != null  and params.yaowuDeleteEnd != '' ">
+                <![CDATA[  and yaowu.yaowu_delete <= #{params.yaowuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yaowuDelete != null  and params.yaowuDelete != '' ">
+                and yaowu.yaowu_delete = #{params.yaowuDelete}
+            </if>
+                <!-- 判断老人的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.jiankangTypes != null  and params.jiankangTypes != ''">
+                and yonghu.jiankang_types = #{params.jiankangTypes}
+            </if>
+
+            <if test="params.yonghuAgeStart != null  and params.yonghuAgeStart != '' ">
+                <![CDATA[  and yonghu.yonghu_age >= #{params.yonghuAgeStart}   ]]>
+            </if>
+            <if test="params.yonghuAgeEnd != null  and params.yonghuAgeEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_age <= #{params.yonghuAgeEnd}   ]]>
+            </if>
+            <if test="params.yonghuAge != null  and params.yonghuAge != '' ">
+                and yonghu.yonghu_age = #{params.yonghuAge}
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuAddress != '' and params.yonghuAddress != null and params.yonghuAddress != 'null' ">
+                and yonghu.yonghu_address like CONCAT('%',#{params.yonghuAddress},'%')
+            </if>
+            <if test="params.baojingTypes != null  and params.baojingTypes != ''">
+                and yonghu.baojing_types = #{params.baojingTypes}
+            </if>
+
+            <if test="params.jiashuId != null  and params.jiashuId != ''">
+                and yonghu.jiashu_id = #{params.jiashuId}
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

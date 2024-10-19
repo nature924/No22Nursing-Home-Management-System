@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.FangkeDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.fangke_name as fangkeName
+        ,a.fangke_mingc as fangkeMingc
+        ,a.fangke_phone as fangkePhone
+        ,a.fangke_types as fangkeTypes
+        ,a.fangke_time as fangkeTime
+        ,a.huilia_time as huiliaTime
+        ,a.yonghu_id as yonghuId
+        ,a.fangke_text as fangkeText
+        ,a.fangke_content as fangkeContent
+        ,a.fangke_delete as fangkeDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.FangkeView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.jiankang_types as jiankangTypes
+        ,yonghu.yonghu_age as yonghuAge
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_address as yonghuAddress
+        ,yonghu.baojing_types as baojingTypes
+        ,yonghu.jiashu_id as yonghuJiashuId
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM fangke  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.fangkeName != '' and params.fangkeName != null and params.fangkeName != 'null' ">
+                and a.fangke_name like CONCAT('%',#{params.fangkeName},'%')
+            </if>
+            <if test=" params.fangkeMingc != '' and params.fangkeMingc != null and params.fangkeMingc != 'null' ">
+                and a.fangke_mingc like CONCAT('%',#{params.fangkeMingc},'%')
+            </if>
+            <if test=" params.fangkePhone != '' and params.fangkePhone != null and params.fangkePhone != 'null' ">
+                and a.fangke_phone like CONCAT('%',#{params.fangkePhone},'%')
+            </if>
+            <if test="params.fangkeTypes != null and params.fangkeTypes != ''">
+                and a.fangke_types = #{params.fangkeTypes}
+            </if>
+            <if test=" params.fangkeTimeStart != '' and params.fangkeTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.fangke_time) >= UNIX_TIMESTAMP(#{params.fangkeTimeStart}) ]]>
+            </if>
+            <if test=" params.fangkeTimeEnd != '' and params.fangkeTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.fangke_time) <= UNIX_TIMESTAMP(#{params.fangkeTimeEnd}) ]]>
+            </if>
+            <if test=" params.huiliaTimeStart != '' and params.huiliaTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.huilia_time) >= UNIX_TIMESTAMP(#{params.huiliaTimeStart}) ]]>
+            </if>
+            <if test=" params.huiliaTimeEnd != '' and params.huiliaTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.huilia_time) <= UNIX_TIMESTAMP(#{params.huiliaTimeEnd}) ]]>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.fangkeText != '' and params.fangkeText != null and params.fangkeText != 'null' ">
+                and a.fangke_text like CONCAT('%',#{params.fangkeText},'%')
+            </if>
+            <if test=" params.fangkeContent != '' and params.fangkeContent != null and params.fangkeContent != 'null' ">
+                and a.fangke_content like CONCAT('%',#{params.fangkeContent},'%')
+            </if>
+            <if test="params.fangkeDeleteStart != null and params.fangkeDeleteStart != ''">
+                <![CDATA[  and a.fangke_delete >= #{params.fangkeDeleteStart}   ]]>
+            </if>
+            <if test="params.fangkeDeleteEnd != null and params.fangkeDeleteEnd != ''">
+                <![CDATA[  and a.fangke_delete <= #{params.fangkeDeleteEnd}   ]]>
+            </if>
+             <if test="params.fangkeDelete != null and params.fangkeDelete != ''">
+                and a.fangke_delete = #{params.fangkeDelete}
+             </if>
+
+                <!-- 判断老人的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.jiankangTypes != null  and params.jiankangTypes != ''">
+                and yonghu.jiankang_types = #{params.jiankangTypes}
+            </if>
+
+            <if test="params.yonghuAgeStart != null  and params.yonghuAgeStart != '' ">
+                <![CDATA[  and yonghu.yonghu_age >= #{params.yonghuAgeStart}   ]]>
+            </if>
+            <if test="params.yonghuAgeEnd != null  and params.yonghuAgeEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_age <= #{params.yonghuAgeEnd}   ]]>
+            </if>
+            <if test="params.yonghuAge != null  and params.yonghuAge != '' ">
+                and yonghu.yonghu_age = #{params.yonghuAge}
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuAddress != '' and params.yonghuAddress != null and params.yonghuAddress != 'null' ">
+                and yonghu.yonghu_address like CONCAT('%',#{params.yonghuAddress},'%')
+            </if>
+            <if test="params.baojingTypes != null  and params.baojingTypes != ''">
+                and yonghu.baojing_types = #{params.baojingTypes}
+            </if>
+
+            <if test="params.jiashuId != null  and params.jiashuId != ''">
+                and yonghu.jiashu_id = #{params.jiashuId}
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yonghu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
